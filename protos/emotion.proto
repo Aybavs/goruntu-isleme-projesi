@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package emotion;
+
+// Emotion Service içinde bir servis tanımlıyoruz
+service EmotionService {
+  // Yüz resmi gönderilecek ➔ Duygu tahmini alınacak
+  rpc PredictEmotion(EmotionRequest) returns (EmotionResponse);
+}
+
+// Frontend'den veya Gateway'den gönderilecek veri yapısı
+message EmotionRequest {
+  bytes face_image = 1; // Sadece yüz crop edilmiş küçük bir görsel (bytes formatında)
+}
+
+// Emotion Service'in döneceği cevap yapısı
+message EmotionResponse {
+  string emotion = 1; // Tahmin edilen duygu ("Happy", "Sad", vs.)
+  float confidence = 2; // Tahminin güven skoru (0.0 - 1.0 arası)
+}
