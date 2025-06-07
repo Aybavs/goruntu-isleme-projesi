@@ -137,8 +137,7 @@ class Config:
     def __contains__(self, key):
         """in operatörü desteği"""
         return key in self._config
-        'log_to_file': True
-        'log_file': 'speech_service.log'
+    
         
     
     

@@ -21,30 +21,12 @@ class SpeechDetectionServicer(vision_pb2_grpc.SpeechDetectionServiceServicer):
         
         Args:
             config (dict, optional): Konfigürasyon ayarları
-        """
-        # Varsayılan konfigürasyon değerleri
-        self.config = {
-            'variation_threshold': float(os.getenv('VARIATION_THRESHOLD', '0.03')),
-            'confidence_threshold': float(os.getenv('SPEAKING_CONFIDENCE_THRESHOLD', '0.35')),
-            'cooldown_frames': int(os.getenv('COOLDOWN_FRAMES', '3')),
-            'history_length': int(os.getenv('HISTORY_LENGTH', '20')),
-            'adaptation_rate': float(os.getenv('ADAPTATION_RATE', '0.08'))
-        }
+        """        # Varsayılan konfigürasyon değerleri
         
-        # Eğer konfigürasyon parametresi geçildiyse değerleri güncelle
-        if config:
-            self.config.update(config)
         
         # Speech detector nesnesini oluştur
-        self.speech_detector = SpeechDetector(
-            variation_threshold=self.config['variation_threshold'],
-            confidence_threshold=self.config['confidence_threshold'],
-            cooldown_frames=self.config['cooldown_frames'],
-            history_length=self.config['history_length'],
-            adaptation_rate=self.config['adaptation_rate']
-        )
+        self.speech_detector = SpeechDetector()
         
-        logger.info(f"Speech Detection Service başlatıldı: {self.config}")
     
     def DetectSpeech(self, request, context):
         """
@@ -61,6 +43,9 @@ class SpeechDetectionServicer(vision_pb2_grpc.SpeechDetectionServiceServicer):
             face_id = request.face_id
             landmarks = list(request.landmarks)
             
+            logger.info(f"Konuşma tespiti isteği alındı (Yüz ID: {face_id}, Landmark sayısı: {len(landmarks)})")
+            
+            
             # Ayrıntı seviyesini ayarlamak için giriş doğrulama
             if not face_id or not landmarks:
                 logger.warning("Geçersiz istek: face_id veya landmarks eksik")
@@ -69,27 +54,20 @@ class SpeechDetectionServicer(vision_pb2_grpc.SpeechDetectionServiceServicer):
                     speaking_time=0.0,
                     face_id=request.face_id
                 )
-            
             logger.debug(f"Konuşma tespiti isteği alındı (Yüz ID: {face_id})")
             
-            # Mevcut zaman
-            current_time = time.time()
-            
             # Konuşma durumunu tespit et
-            is_speaking = self.speech_detector.detect_speaking(face_id, landmarks, current_time)
+            is_speaking = self.speech_detector.detect_speaking(face_id, landmarks)
             
-            # Konuşma süresini al
-            speaking_time = self.speech_detector.get_speaking_time(face_id)
+            # İstatistikleri al
+            stats = self.speech_detector.get_stats(face_id)
             
-            # İstatistikleri al (isteğe bağlı olarak yanıta eklenebilir)
-            stats = self.speech_detector.get_face_stats(face_id)
-            
-            logger.info(f"Yüz ID {face_id} için konuşma durumu: {is_speaking}, süre: {speaking_time:.2f} sn")
+            logger.info(f"Yüz ID {face_id} için konuşma durumu: {is_speaking}")
             
             # Yanıt oluştur
             return vision_pb2.SpeechResponse(
                 is_speaking=is_speaking,
-                speaking_time=speaking_time,
+                speaking_time=0.0,  # Yeni API'de speaking_time yok, 0.0 gönderiyoruz
                 face_id=face_id
             )
             
@@ -104,8 +82,7 @@ class SpeechDetectionServicer(vision_pb2_grpc.SpeechDetectionServiceServicer):
     def clear_face_data(self, face_id):
         """
         Yüz verilerini temizler (servis arayüzünden doğrudan erişim için)
-        
-        Args:
+          Args:
             face_id (str): Temizlenecek yüz kimliği
         """
-        self.speech_detector.clear_face_data(face_id)
+        self.speech_detector.clear_face(face_id)

@@ -13,4 +13,4 @@ REM 4. Terminal: .venv aktive et, vision-service dizinine geç, python vision_se
 start cmd /k "cd /d %~dp0 && .venv\Scripts\activate && cd vision-service && python vision_server.py"
 
 REM 5. Terminal: .venv aktive et, speech-service dizinine geç, python speech_server.py çalıştır
-start cmd /k "cd /d %~dp0 && .venv\Scripts\activate && cd speech-service && python speech_server.py"
+start cmd /k "cd /d %~dp0 && cd speech-service && venv\Scripts\activate  && python speech_server.py"
