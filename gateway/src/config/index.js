@@ -25,5 +25,11 @@ module.exports = {
     cleanupInterval: 10000, // 10 saniye
     dataTimeout: 10000, // 10 saniye
   },
+  youtube: {
+    maxConcurrentStreams: parseInt(process.env.MAX_CONCURRENT_STREAMS || "3"),
+    frameRate: parseInt(process.env.YOUTUBE_FRAME_RATE || "1"),
+    quality: process.env.YOUTUBE_QUALITY || "highestvideo",
+    timeout: parseInt(process.env.YOUTUBE_TIMEOUT || "30000"),
+  },
   debug: process.env.DEBUG || "gateway:*",
 };

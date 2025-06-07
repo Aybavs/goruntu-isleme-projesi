@@ -12,3 +12,5 @@ export type ConnectionStatus =
   | "connected"
   | "disconnected"
   | "error";
+
+export type AppMode = "live" | "upload" | "link";

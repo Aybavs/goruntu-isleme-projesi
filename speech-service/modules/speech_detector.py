@@ -11,7 +11,7 @@ logger = logging.getLogger("speech-detector")
 class SpeechDetector:
     def __init__(
         self,
-        base_threshold: float = 0.02,           # daha düşük eşik
+        base_threshold: float = 0.08,           # daha düşük eşik
         history_size: int = 8,
         cooldown_frames: int = 1,               # tek karede geçiş
         max_silence_frames: int = 10,
