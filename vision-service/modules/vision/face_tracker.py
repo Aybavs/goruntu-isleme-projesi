@@ -8,7 +8,7 @@ logger = logging.getLogger("vision-service")
 class FaceTracker:
     """Yüz takibi için sınıf"""
     
-    def __init__(self, similarity_threshold=0.7, cleanup_timeout=5.0):
+    def __init__(self, similarity_threshold=0.4, cleanup_timeout=5.0):
         """
         FaceTracker sınıfını başlatır
         Args:

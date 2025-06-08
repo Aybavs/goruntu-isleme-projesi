@@ -21,7 +21,7 @@ class ConfigManager:
         """Environment değişkenlerinden yapılandırma değerlerini yükler"""
         
         # Yüz tespit yapılandırmaları
-        self.face_match_threshold = float(os.getenv('FACE_MATCH_THRESHOLD', '0.7'))
+        self.face_match_threshold = float(os.getenv('FACE_MATCH_THRESHOLD', '0.4'))
         self.face_cleanup_timeout = float(os.getenv('FACE_CLEANUP_TIMEOUT', '5.0'))
         
         # Model dosya yolları
