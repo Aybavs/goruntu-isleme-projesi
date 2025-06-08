@@ -5,11 +5,6 @@ import os
 import logging
 from pathlib import Path
 import json
-try:
-    import yaml
-except ImportError:
-    yaml = None
-    logging.getLogger("speech-service").warning("yaml modülü bulunamadı, YAML konfigürasyon dosyaları kullanılamayacak.")
 
 logger = logging.getLogger("speech-service")
 
@@ -69,9 +64,6 @@ class Config:
             if ext == '.json':
                 with open(config_file, 'r', encoding='utf-8') as f:
                     custom_config = json.load(f)
-            elif ext in ['.yml', '.yaml']:
-                with open(config_file, 'r', encoding='utf-8') as f:
-                    custom_config = yaml.safe_load(f)
             else:
                 logger.warning(f"Desteklenmeyen konfigürasyon dosyası formatı: {ext}")
                 return
