@@ -3,7 +3,16 @@ import { useMemo } from "react";
 import { Speaker } from "../types";
 
 interface SpeakerCardProps {
-  speaker: Speaker;
+  speaker: Speaker & {
+    dominantEmotion?: {
+      emotion: string;
+      count: number;
+      totalCount: number;
+      emoji: string;
+      colorClass: string;
+      percentage: number;
+    };
+  };
 }
 
 function SpeakerCard({ speaker }: SpeakerCardProps) {
@@ -87,7 +96,6 @@ function SpeakerCard({ speaker }: SpeakerCardProps) {
             </div>
           )}
         </div>
-
         {/* Yüz görüntüsü */}
         <div className="flex justify-center">
           {faceImageUrl ? (
@@ -101,20 +109,42 @@ function SpeakerCard({ speaker }: SpeakerCardProps) {
               <span className="text-white text-xl font-bold">{speaker.id}</span>
             </div>
           )}
-        </div>
-
+        </div>{" "}
         {/* Duygu durumu */}
-        <div className="text-center">
-          <span
-            className={`inline-flex items-center px-3 py-2 rounded-xl text-sm font-semibold shadow-sm ${emotionColorClass}`}
-          >
-            {emotionEmoji} {speaker.emotion}
-            <span className="ml-2 text-xs opacity-75 bg-white/30 px-2 py-1 rounded-full">
-              %{Math.round(speaker.emotion_confidence * 100)}
+        <div className="space-y-2">
+          {/* Mevcut duygu */}
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-1">Şu anki duygu</div>
+            <span
+              className={`inline-flex items-center px-3 py-2 rounded-xl text-sm font-semibold shadow-sm ${emotionColorClass}`}
+            >
+              {emotionEmoji} {speaker.emotion}
+              <span className="ml-2 text-xs opacity-75 bg-white/30 px-2 py-1 rounded-full">
+                %{Math.round(speaker.emotion_confidence * 100)}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
+          {/* Baskın duygu */}
+          {speaker.dominantEmotion && (
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">Baskın duygu</div>
+              <span
+                className={`inline-flex items-center px-3 py-2 rounded-xl text-sm font-semibold shadow-sm ${speaker.dominantEmotion.colorClass}`}
+              >
+                {speaker.dominantEmotion.emoji}{" "}
+                {speaker.dominantEmotion.emotion}
+                <span className="ml-2 text-xs opacity-75 bg-white/30 px-2 py-1 rounded-full">
+                  %{speaker.dominantEmotion.percentage}
+                </span>
+              </span>
+              <div className="text-xs text-gray-400 mt-1">
+                {speaker.dominantEmotion.count}/
+                {speaker.dominantEmotion.totalCount} gözlem
+              </div>
+            </div>
+          )}
+        </div>
         {/* Konuşma süresi */}
         <div className="text-center bg-gray-50 rounded-lg p-2">
           <div className="text-xs text-gray-500 mb-1">Toplam Konuşma</div>

@@ -4,6 +4,7 @@ export interface Speaker {
   speaking_time: number;
   emotion: string;
   emotion_confidence: number;
+  emotion_history?: string[]; // Kişinin duygu geçmişi
   face_image?: ArrayBuffer | string;
 }
 

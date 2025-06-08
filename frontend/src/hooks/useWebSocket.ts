@@ -23,6 +23,9 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
   });
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
 
+  // Her kişi için duygu geçmişi tut
+  const emotionHistoryRef = useRef<{ [speakerId: number]: string[] }>({});
+
   const sendMessage = useCallback((message: Record<string, unknown>) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(message));
@@ -33,9 +36,9 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
       socketRef.current.send(data);
     }
   }, []);
-
   const clearSpeakers = useCallback(() => {
     setSpeakers([]);
+    emotionHistoryRef.current = {}; // Duygu geçmişini de temizle
   }, []);
 
   useEffect(() => {
@@ -51,18 +54,57 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
           message: "Bağlantı kuruldu",
         });
       };
-
       socketRef.current.onmessage = (event: MessageEvent) => {
         const data = JSON.parse(event.data);
         console.log("WebSocket mesajı alındı:", data);
 
         // Analiz verisi
         if (data.type === "analysisData" && data.data?.speakers) {
-          setSpeakers(data.data.speakers);
+          // Her speaker için duygu geçmişini güncelle
+          const updatedSpeakers = data.data.speakers.map((speaker: Speaker) => {
+            // Mevcut duygu geçmişini al
+            const currentHistory = emotionHistoryRef.current[speaker.id] || [];
+
+            // Yeni duyguyu ekle (eğer farklıysa veya ilk kayıtsa)
+            const lastEmotion = currentHistory[currentHistory.length - 1];
+            if (!lastEmotion || lastEmotion !== speaker.emotion) {
+              currentHistory.push(speaker.emotion);
+              // En fazla 50 duygu tutmaya sınırla (performans için)
+              if (currentHistory.length > 50) {
+                currentHistory.shift();
+              }
+              emotionHistoryRef.current[speaker.id] = currentHistory;
+            }
+
+            // Speaker objesine emotion_history ekle
+            return {
+              ...speaker,
+              emotion_history: [...currentHistory],
+            };
+          });
+
+          setSpeakers(updatedSpeakers);
         }
         // Eski format için backward compatibility
         else if (data.speakers) {
-          setSpeakers(data.speakers);
+          // Eski format için de aynı işlemi yap
+          const updatedSpeakers = data.speakers.map((speaker: Speaker) => {
+            const currentHistory = emotionHistoryRef.current[speaker.id] || [];
+            const lastEmotion = currentHistory[currentHistory.length - 1];
+            if (!lastEmotion || lastEmotion !== speaker.emotion) {
+              currentHistory.push(speaker.emotion);
+              if (currentHistory.length > 50) {
+                currentHistory.shift();
+              }
+              emotionHistoryRef.current[speaker.id] = currentHistory;
+            }
+            return {
+              ...speaker,
+              emotion_history: [...currentHistory],
+            };
+          });
+
+          setSpeakers(updatedSpeakers);
         }
         // YouTube stream eventi
         else if (data.event === "streamStarted") {
