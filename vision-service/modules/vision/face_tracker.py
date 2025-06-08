@@ -19,7 +19,7 @@ class FaceTracker:
         self.face_cleanup_timeout = cleanup_timeout
         
         self.face_database = {}
-        self.next_id = 0
+        self.next_id = 1
         self.last_seen = {}
         
         logger.info("Yüz takip modülü başlatıldı")
